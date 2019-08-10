@@ -17,14 +17,16 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
+
+import android.os.CountDownTimer;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -32,9 +34,13 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
+    static ProgressBar progressBar;
+    static public int timerProg;
+    static CountDownTimer countDownTimer;
     public static int status = 0;
     public static MediaPlayer mediaPlayer;
     public static TextView textSongName;
+   // public int t = timerProg;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -59,20 +65,20 @@ public class MainActivity extends AppCompatActivity {
 
 
     final int PERMISSION_READ_EXTERNAL = 1;
-
+    static SeekBar seekBar;
     public static ArrayList<MusicInfo> music;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
         BottomNavigationView navView = findViewById(R.id.nav_view);
+        progressBar = findViewById(R.id.progressBar);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         mediaPlayer = new MediaPlayer();
         sharedPreferences = this.getSharedPreferences(getPackageName(),MODE_PRIVATE);
         textSongName = findViewById(R.id.textSongName);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
-
         music = new ArrayList<>();
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
@@ -88,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                if(countDownTimer != null)
+                    countDownTimer.cancel();
                 int pos = sharedPreferences.getInt("pos",0);
                 pos--;
                 if(pos < 0) pos = music.size() - 1;
@@ -99,12 +107,13 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(getApplicationContext(), myUri);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-
                     textSongName.setText(" " + music.get(pos).musicName);
+                    timerProg = 0;
+                    setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
+
 
                     SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getPackageName(),MODE_PRIVATE);
                     sharedPreferences.edit().putInt("pos",pos).apply();
-
                 }catch (Exception e){
                     e.printStackTrace();
                 }
@@ -116,9 +125,14 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if(status == 1) {
+                    Log.i("timer progress 1",Integer.toString(timerProg));
+                    countDownTimer.cancel();
                     mediaPlayer.pause();
                     status = 0;
                 }else{
+                    Log.i("timer progress 2",Integer.toString(timerProg));
+                    int pos = sharedPreferences.getInt("pos",0);
+                    setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
                     mediaPlayer.start();
                     status = 1;
                 }
@@ -127,6 +141,8 @@ public class MainActivity extends AppCompatActivity {
         nextPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(countDownTimer != null)
+                countDownTimer.cancel();
                 int pos = sharedPreferences.getInt("pos",0);
                 pos++;
                 if(pos == music.size()) pos = 0;
@@ -137,8 +153,10 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(getApplicationContext(), myUri);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-
                     textSongName.setText(" " + music.get(pos).musicName);
+                    timerProg = 0;
+                    setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
+
 
                     SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getPackageName(),MODE_PRIVATE);
                     sharedPreferences.edit().putInt("pos",pos).apply();
@@ -162,8 +180,10 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.setDataSource(getApplicationContext(), myUri);
                     mediaPlayer.prepare();
                     mediaPlayer.start();
-
                     textSongName.setText(" " + music.get(pos).musicName);
+                    timerProg = 0;
+                    setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
+
 
                     SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(getPackageName(),MODE_PRIVATE);
                     sharedPreferences.edit().putInt("pos",pos).apply();
@@ -201,23 +221,59 @@ public class MainActivity extends AppCompatActivity {
 
                 int i1 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
                 int i2 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM);
+                int i3 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
 
-                MusicInfo musicInfo = new MusicInfo(Uri.parse(cursor.getString(1)),cursor.getString(i1),cursor.getString(i2));
+               // Log.i("duration of the song :-",cursor.getString(i3))
+                //String sd = cursor.getString(i3);
+                long fd = Long.parseLong(cursor.getString(i3));
+
+                MusicInfo musicInfo = new MusicInfo(Uri.parse(cursor.getString(1)),cursor.getString(i1),cursor.getString(i2),fd);
              //   Log.i("songs :- ",Uri.parse(cursor.getString(1)) + " " + cursor.getString(i1) + " " + cursor.getString(i2));
                 music.add(musicInfo);
+
 
             }
 
         }
-        textSongName.setText(music.get(0).musicName);
+        int j = sharedPreferences.getInt("pos",0);
+        textSongName.setText(music.get(j).musicName);
         try {
             mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(getApplicationContext(), music.get(0).musicResourceUri);
+            mediaPlayer.setDataSource(getApplicationContext(), music.get(j).musicResourceUri);
             mediaPlayer.prepare();
         }catch (Exception e){
             e.printStackTrace();
         }
+    }
+    public  void setTimer(long timer,int curr,long dur){
+
+        progressBar.setMax(convert(dur));
+        progressBar.setProgress(curr);
+       // Log.i("duration req",Integer.toString(convert(dur)));
+       // Log.i("should play from-",Integer.toString(curr));
+        //progressBar.setProgress(0);
+        countDownTimer = new CountDownTimer(timer,1000) {
+            @Override
+            public void onTick(long l) {
+             //   Log.i("timer progress",Integer.toString(timerProg));
+                ++timerProg;
+                progressBar.incrementProgressBy(1);
+            }
+
+            @Override
+            public void onFinish() {
+                progressBar.setProgress(0);
+                countDownTimer.cancel();
+            }
+        }.start();
+
+    }
+    public int convert(long l){
+        l/=1000;
+        String s = Long.toString(l);
+        Log.i("duration : -",s);
+        return Integer.parseInt(s);
     }
 
 }

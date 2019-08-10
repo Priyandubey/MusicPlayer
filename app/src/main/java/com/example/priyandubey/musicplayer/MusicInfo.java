@@ -8,12 +8,14 @@ public class MusicInfo {
     public Uri musicResourceUri;
     public String musicName;
     public String musicAlbum;
+    public long musicDuration;
     //public ImageView musicImage;
 
-    public MusicInfo(Uri musicResourceUri, String musicName, String musicAlbum) {
+    public MusicInfo(Uri musicResourceUri, String musicName, String musicAlbum,long musicDuration) {
         this.musicResourceUri = musicResourceUri;
         this.musicName = musicName;
         this.musicAlbum = musicAlbum;
+        this.musicDuration = musicDuration;
         // this.musicImage = musicImage;
     }
 
@@ -29,7 +31,14 @@ public class MusicInfo {
         return musicAlbum;
     }
 
-    /*public ImageView getMusicImage() {
+    public long getMusicDuration() {
+        return musicDuration;
+    }
+
+    /* public long getMusicDuration() {
+        return musicDuration;
+    }
+    public ImageView getMusicImage() {
         return musicImage;
     }*/
 }
