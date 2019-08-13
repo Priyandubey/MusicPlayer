@@ -1,5 +1,5 @@
 # MusicPlayer
-This is Music Player with TicTacToe game.You Can play/pause the songs and add the songs in the Favourite.Also play next and previous songs, there is also an progress bar.
+This is Music Player with TicTacToe game.You Can play/pause the songs .Also play next and previous songs, there is also an progress bar.
 
 
 [![Screenshot-20190813-200707-com-example-priyandubey-musicplayer.jpg](https://i.postimg.cc/sXMcQ9zb/Screenshot-20190813-200707-com-example-priyandubey-musicplayer.jpg)](https://postimg.cc/WFPrxZh7)
