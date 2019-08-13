@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     public static int status = 0;
     public static MediaPlayer mediaPlayer;
     public static TextView textSongName;
+//    public static
    // public int t = timerProg;
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -50,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
             switch (item.getItemId()) {
                 case R.id.songs :
                     selectedFragment = new SongFragment();
-                    break;
-                case R.id.favourites:
-                    selectedFragment = new FavouriteFragment();
                     break;
                 case R.id.games:
                     selectedFragment = new GameFragment();
@@ -67,6 +65,8 @@ public class MainActivity extends AppCompatActivity {
     final int PERMISSION_READ_EXTERNAL = 1;
     static SeekBar seekBar;
     public static ArrayList<MusicInfo> music;
+    public static ArrayList<MusicInfo> favmusic;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = this.getSharedPreferences(getPackageName(),MODE_PRIVATE);
         textSongName = findViewById(R.id.textSongName);
         music = new ArrayList<>();
-
+        favmusic = new ArrayList<>();
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_READ_EXTERNAL);
         }else{

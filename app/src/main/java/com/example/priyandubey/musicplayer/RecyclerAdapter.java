@@ -1,6 +1,8 @@
 package com.example.priyandubey.musicplayer;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import static com.example.priyandubey.musicplayer.MainActivity.countDownTimer;
+import static com.example.priyandubey.musicplayer.MainActivity.favmusic;
 import static com.example.priyandubey.musicplayer.MainActivity.mediaPlayer;
 import static com.example.priyandubey.musicplayer.MainActivity.progressBar;
 import static com.example.priyandubey.musicplayer.MainActivity.seekBar;
