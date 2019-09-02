@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -24,6 +26,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -85,6 +89,10 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_READ_EXTERNAL);
         }else{
             loadMusic();
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setStatusBarColor(Color.WHITE);
         }
 
         Button pausePlay = findViewById(R.id.pausePlay);
@@ -222,9 +230,6 @@ public class MainActivity extends AppCompatActivity {
                 int i1 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE);
                 int i2 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM);
                 int i3 = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION);
-
-               // Log.i("duration of the song :-",cursor.getString(i3))
-                //String sd = cursor.getString(i3);
                 long fd = Long.parseLong(cursor.getString(i3));
 
                 MusicInfo musicInfo = new MusicInfo(Uri.parse(cursor.getString(1)),cursor.getString(i1),cursor.getString(i2),fd);

@@ -1,8 +1,10 @@
 package com.example.priyandubey.musicplayer;
 
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,10 +21,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+import static com.example.priyandubey.musicplayer.App.CHANNEL_ID;
 import static com.example.priyandubey.musicplayer.MainActivity.countDownTimer;
 import static com.example.priyandubey.musicplayer.MainActivity.favmusic;
 import static com.example.priyandubey.musicplayer.MainActivity.mediaPlayer;
@@ -36,6 +40,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
     public List<MusicInfo> music;
     private Context mContext;
+    Bitmap art;
     public RecyclerAdapter(List<MusicInfo> music, Context mContext) {
         this.music = music;
         this.mContext = mContext;
@@ -52,10 +57,12 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         holder.fname.setText(music.get(position).musicName);
         holder.fAlbum.setText(music.get(position).musicAlbum);
+
+        //////////////////////////Get the album art of the song //////////////////////
+
         try {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             byte[] rawArt;
-            Bitmap art;
             BitmapFactory.Options bfo = new BitmapFactory.Options();
 
             mmr.setDataSource(mContext, music.get(position).getMusicResourceUri());
@@ -63,12 +70,15 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
 
             if (null != rawArt) {
                 art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, bfo);
-                Log.i("hi there ", "still loe");
                 holder.imageView.setImageBitmap(art);
+            }else{
+                art = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.mimage);
             }
         }catch (Exception e){
             e.printStackTrace();
         }
+        ////////////////////////////////////album art ///////////////////////////////////
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -77,19 +87,21 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 }
                 try {
 
-                    Uri myUri = music.get(position).musicResourceUri;
-                    mediaPlayer.reset();
-                    mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mediaPlayer.setDataSource(mContext, myUri);
-                    mediaPlayer.prepare();
-                    mediaPlayer.start();
-
-                    textSongName.setText(" " + music.get(position).musicName);
-
                     SharedPreferences sharedPreferences = mContext.getSharedPreferences(mContext.getPackageName(),Context.MODE_PRIVATE);
                     sharedPreferences.edit().putInt("pos",position).apply();
                     status = 1;
                     setTimer(music.get(position).musicDuration,0);
+
+                    textSongName.setText(" " + music.get(position).musicName);
+
+                    Intent callIntent = new Intent(mContext,MusicService.class);
+                    callIntent.putExtra("positionNotify",position);
+                    mContext.startService(callIntent);
+
+                    Log.i("before servuce--",Integer.toString(position));
+
+
+
 
                 }catch (Exception e){
                     e.printStackTrace();
