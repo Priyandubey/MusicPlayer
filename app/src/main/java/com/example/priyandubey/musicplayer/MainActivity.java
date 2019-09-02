@@ -235,9 +235,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
-        int j = sharedPreferences.getInt("pos",0);
-        textSongName.setText(music.get(j).musicName);
+
         try {
+            int j = sharedPreferences.getInt("pos",0);
+            textSongName.setText(music.get(j).musicName);
             mediaPlayer.reset();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setDataSource(getApplicationContext(), music.get(j).musicResourceUri);

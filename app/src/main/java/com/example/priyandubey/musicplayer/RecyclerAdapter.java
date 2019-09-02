@@ -4,7 +4,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.CountDownTimer;
@@ -46,9 +49,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
     }
 
     @Override
-    public void onBindViewHolder(MyViewHolder holder, final int position) {
+    public void onBindViewHolder(final MyViewHolder holder, final int position) {
         holder.fname.setText(music.get(position).musicName);
         holder.fAlbum.setText(music.get(position).musicAlbum);
+        try {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            byte[] rawArt;
+            Bitmap art;
+            BitmapFactory.Options bfo = new BitmapFactory.Options();
+
+            mmr.setDataSource(mContext, music.get(position).getMusicResourceUri());
+            rawArt = mmr.getEmbeddedPicture();
+
+            if (null != rawArt) {
+                art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, bfo);
+                Log.i("hi there ", "still loe");
+                holder.imageView.setImageBitmap(art);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +76,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     countDownTimer.cancel();
                 }
                 try {
+
                     Uri myUri = music.get(position).musicResourceUri;
                     mediaPlayer.reset();
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
