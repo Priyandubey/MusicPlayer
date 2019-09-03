@@ -2,6 +2,7 @@ package com.example.priyandubey.musicplayer;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
     public static TextView textSongName;
 //    public static
    // public int t = timerProg;
+    public static MusicBroadcast cast = new MusicBroadcast();
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
@@ -91,9 +94,19 @@ public class MainActivity extends AppCompatActivity {
             loadMusic();
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(Color.WHITE);
-        }
+
+        IntentFilter pintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.prev");
+        registerReceiver(cast,pintentFilter);
+
+        IntentFilter qintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.play");
+        registerReceiver(cast,qintentFilter);
+
+        IntentFilter rintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.next");
+        registerReceiver(cast,rintentFilter);
+
+        IntentFilter sintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.cancel");
+        registerReceiver(cast,sintentFilter);
+
 
         Button pausePlay = findViewById(R.id.pausePlay);
         Button prevPlay = findViewById(R.id.prevPlay);
@@ -282,4 +295,9 @@ public class MainActivity extends AppCompatActivity {
         return Integer.parseInt(s);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(cast);
+    }
 }

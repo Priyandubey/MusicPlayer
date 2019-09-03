@@ -1,6 +1,7 @@
 package com.example.priyandubey.musicplayer;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -18,6 +19,8 @@ import static com.example.priyandubey.musicplayer.MainActivity.mediaPlayer;
 import static com.example.priyandubey.musicplayer.MainActivity.music;
 
 public class MusicService extends Service {
+
+    public static Notification notification;
 
     @Override
     public void onCreate() {
@@ -41,18 +44,34 @@ public class MusicService extends Service {
             e.printStackTrace();
         }
 
+        Intent mintent = new Intent(this,MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this,0,mintent,0);
 
 
-        Notification notification = new NotificationCompat.Builder(this,CHANNEL_ID)
+        Intent pintent = new Intent("com.example.priyandubey.MusicPlayer.prev") ;
+        PendingIntent ppendingIntent = PendingIntent.getBroadcast(this,0,pintent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent qintent = new Intent("com.example.priyandubey.MusicPlayer.play");
+        PendingIntent qpendingIntent = PendingIntent.getBroadcast(this,0,qintent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent rintent = new Intent("com.example.priyandubey.MusicPlayer.next");
+        PendingIntent rpendingIntent = PendingIntent.getBroadcast(this,0,rintent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent sintent = new Intent("com.example.priyandubey.MusicPlayer.cancel");
+        PendingIntent spendingIntent = PendingIntent.getBroadcast(this,0,sintent,PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        notification = new NotificationCompat.Builder(this,CHANNEL_ID)
                 .setContentTitle(music.get(position).musicName)
                 .setContentText(music.get(position).musicAlbum)
                 .setSmallIcon(R.drawable.mimage)
                 .setLargeIcon(convertBitmap(position))
                 .setContentIntent(null)
-                .addAction(R.drawable.notifyprev,"prev",null)
-                .addAction(R.drawable.notifyplay,"play",null)
-                .addAction(R.drawable.notifynext,"next",null)
-                .addAction(R.drawable.notifynext,"cancel",null)
+                .addAction(R.drawable.notifyprev,"prev",ppendingIntent)
+                .addAction(R.drawable.notifyplay,"play",qpendingIntent)
+                .addAction(R.drawable.notifynext,"next",rpendingIntent)
+                .addAction(R.drawable.notifycancel,"cancel",spendingIntent)
                 .setStyle(new androidx.media.app.NotificationCompat.MediaStyle().setShowActionsInCompactView(0,1,2))
                 .build();
 

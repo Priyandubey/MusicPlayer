@@ -98,7 +98,7 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                     callIntent.putExtra("positionNotify",position);
                     mContext.startService(callIntent);
 
-                    Log.i("before servuce--",Integer.toString(position));
+//                    Log.i("before servuce--",Integer.toString(position));
 
 
 
