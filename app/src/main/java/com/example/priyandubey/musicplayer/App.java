@@ -26,6 +26,8 @@ public class App extends Application {
                 "musicNotify",
                 NotificationManager.IMPORTANCE_DEFAULT
         );
+        channel.enableVibration(false);
+        channel.setSound(null,null);
 
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel);

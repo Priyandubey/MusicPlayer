@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import static android.content.Context.MODE_PRIVATE;
+import static com.example.priyandubey.musicplayer.MainActivity.cast;
 import static com.example.priyandubey.musicplayer.MainActivity.countDownTimer;
 import static com.example.priyandubey.musicplayer.MainActivity.mediaPlayer;
 import static com.example.priyandubey.musicplayer.MainActivity.music;
@@ -36,6 +37,8 @@ public class MusicBroadcast extends BroadcastReceiver {
             int pos = sharedPreferences.getInt("pos",0);
             pos--;
             if(pos < 0) pos = music.size() - 1;
+            status = 1;
+            Log.i("fromthebroadcastreciver"," " + music.get(pos).musicName);
 
             try {
                 Uri myUri = music.get(pos).musicResourceUri;
@@ -48,6 +51,9 @@ public class MusicBroadcast extends BroadcastReceiver {
                 timerProg = 0;
                 setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
 
+                Intent callIntent = new Intent(context,MusicService.class);
+                callIntent.putExtra("positionNotify",pos);
+                context.startService(callIntent);
 
                 SharedPreferences sharedPreferences = context.getSharedPreferences(context.getPackageName(),MODE_PRIVATE);
                 sharedPreferences.edit().putInt("pos",pos).apply();
@@ -55,18 +61,16 @@ public class MusicBroadcast extends BroadcastReceiver {
                 e.printStackTrace();
             }
 
-
         }
         if("com.example.priyandubey.MusicPlayer.play".equals(intent.getAction())){
 
+            int pos = sharedPreferences.getInt("pos",0);
+
             if(status == 1) {
-                Log.i("timer progress 1",Integer.toString(timerProg));
                 countDownTimer.cancel();
                 mediaPlayer.pause();
                 status = 0;
             }else{
-                Log.i("timer progress 2",Integer.toString(timerProg));
-                int pos = sharedPreferences.getInt("pos",0);
                 setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
                 mediaPlayer.start();
                 status = 1;
@@ -80,6 +84,8 @@ public class MusicBroadcast extends BroadcastReceiver {
             int pos = sharedPreferences.getInt("pos",0);
             pos++;
             if(pos == music.size()) pos = 0;
+            status = 1;
+            Log.i("fromthebroadcastreciver"," " + music.get(pos).musicName);
             try {
                 Uri myUri = music.get(pos).musicResourceUri;
                 mediaPlayer.reset();
@@ -91,6 +97,9 @@ public class MusicBroadcast extends BroadcastReceiver {
                 timerProg = 0;
                 setTimer(music.get(pos).musicDuration - timerProg*1000l,timerProg,music.get(pos).musicDuration);
 
+                Intent callIntent = new Intent(context,MusicService.class);
+                callIntent.putExtra("positionNotify",pos);
+                context.startService(callIntent);
 
                 SharedPreferences sharedPreferences = context.getSharedPreferences(context.getPackageName(),MODE_PRIVATE);
                 sharedPreferences.edit().putInt("pos",pos).apply();
@@ -102,10 +111,12 @@ public class MusicBroadcast extends BroadcastReceiver {
         }
         if("com.example.priyandubey.MusicPlayer.cancel".equals(intent.getAction())){
 
+            Log.i("fromthebroadcastreciver","cancel");
             Intent mintent = new Intent(context, MusicService.class);
+            context.stopService(mintent);
             mediaPlayer.stop();
             mediaPlayer.reset();
-            context.stopService(mintent);
+            context.unregisterReceiver(cast);
 
         }
 
@@ -115,9 +126,6 @@ public class MusicBroadcast extends BroadcastReceiver {
 
         progressBar.setMax(convert(dur));
         progressBar.setProgress(curr);
-        // Log.i("duration req",Integer.toString(convert(dur)));
-        // Log.i("should play from-",Integer.toString(curr));
-        //progressBar.setProgress(0);
         countDownTimer = new CountDownTimer(timer,1000) {
             @Override
             public void onTick(long l) {

@@ -2,6 +2,7 @@ package com.example.priyandubey.musicplayer;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -79,7 +80,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
         BottomNavigationView navView = findViewById(R.id.nav_view);
         progressBar = findViewById(R.id.progressBar);
         navView.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
@@ -88,12 +88,13 @@ public class MainActivity extends AppCompatActivity {
         textSongName = findViewById(R.id.textSongName);
         music = new ArrayList<>();
         favmusic = new ArrayList<>();
+
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_READ_EXTERNAL);
         }else{
             loadMusic();
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
         }
-
 
         IntentFilter pintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.prev");
         registerReceiver(cast,pintentFilter);
@@ -162,8 +163,12 @@ public class MainActivity extends AppCompatActivity {
         nextPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(countDownTimer != null)
-                countDownTimer.cancel();
+//                if(countDownTimer != null)
+                try {
+                    countDownTimer.cancel();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
                 int pos = sharedPreferences.getInt("pos",0);
                 pos++;
                 if(pos == music.size()) pos = 0;
@@ -269,9 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
         progressBar.setMax(convert(dur));
         progressBar.setProgress(curr);
-       // Log.i("duration req",Integer.toString(convert(dur)));
-       // Log.i("should play from-",Integer.toString(curr));
-        //progressBar.setProgress(0);
+
         countDownTimer = new CountDownTimer(timer,1000) {
             @Override
             public void onTick(long l) {
@@ -298,6 +301,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Intent mintent = new Intent(this, MusicService.class);
+        stopService(mintent);
+        mediaPlayer.stop();
+        mediaPlayer.reset();
         unregisterReceiver(cast);
     }
 }

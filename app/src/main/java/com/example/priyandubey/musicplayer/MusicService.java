@@ -65,7 +65,7 @@ public class MusicService extends Service {
         notification = new NotificationCompat.Builder(this,CHANNEL_ID)
                 .setContentTitle(music.get(position).musicName)
                 .setContentText(music.get(position).musicAlbum)
-                .setSmallIcon(R.drawable.mimage)
+                .setSmallIcon(R.drawable.notifyplay)
                 .setLargeIcon(convertBitmap(position))
                 .setContentIntent(null)
                 .addAction(R.drawable.notifyprev,"prev",ppendingIntent)
