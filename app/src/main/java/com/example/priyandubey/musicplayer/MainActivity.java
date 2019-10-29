@@ -37,6 +37,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class MainActivity extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
@@ -73,7 +75,6 @@ public class MainActivity extends AppCompatActivity {
     final int PERMISSION_READ_EXTERNAL = 1;
     static SeekBar seekBar;
     public static ArrayList<MusicInfo> music;
-    public static ArrayList<MusicInfo> favmusic;
 
 
     @Override
@@ -87,14 +88,14 @@ public class MainActivity extends AppCompatActivity {
         sharedPreferences = this.getSharedPreferences(getPackageName(),MODE_PRIVATE);
         textSongName = findViewById(R.id.textSongName);
         music = new ArrayList<>();
-        favmusic = new ArrayList<>();
 
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},PERMISSION_READ_EXTERNAL);
         }else{
             loadMusic();
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
         }
+
+        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container,new SongFragment()).commit();
 
         IntentFilter pintentFilter = new IntentFilter("com.example.priyandubey.MusicPlayer.prev");
         registerReceiver(cast,pintentFilter);
@@ -251,7 +252,6 @@ public class MainActivity extends AppCompatActivity {
                 long fd = Long.parseLong(cursor.getString(i3));
 
                 MusicInfo musicInfo = new MusicInfo(Uri.parse(cursor.getString(1)),cursor.getString(i1),cursor.getString(i2),fd);
-             //   Log.i("songs :- ",Uri.parse(cursor.getString(1)) + " " + cursor.getString(i1) + " " + cursor.getString(i2));
                 music.add(musicInfo);
 
 
@@ -301,10 +301,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Intent mintent = new Intent(this, MusicService.class);
-        stopService(mintent);
         mediaPlayer.stop();
         mediaPlayer.reset();
         unregisterReceiver(cast);
+        Intent mintent = new Intent(this, MusicService.class);
+        stopService(mintent);
     }
 }

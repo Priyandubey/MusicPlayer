@@ -1,17 +1,12 @@
 package com.example.priyandubey.musicplayer;
 
-import android.app.AlertDialog;
-import android.app.Notification;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.net.Uri;
+import android.os.Build;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,19 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
-import static com.example.priyandubey.musicplayer.App.CHANNEL_ID;
 import static com.example.priyandubey.musicplayer.MainActivity.countDownTimer;
-import static com.example.priyandubey.musicplayer.MainActivity.favmusic;
-import static com.example.priyandubey.musicplayer.MainActivity.mediaPlayer;
 import static com.example.priyandubey.musicplayer.MainActivity.progressBar;
-import static com.example.priyandubey.musicplayer.MainActivity.seekBar;
 import static com.example.priyandubey.musicplayer.MainActivity.status;
 import static com.example.priyandubey.musicplayer.MainActivity.textSongName;
 import static com.example.priyandubey.musicplayer.MainActivity.timerProg;
@@ -61,23 +50,26 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
         //////////////////////////Get the album art of the song //////////////////////
 
         try {
-            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-            byte[] rawArt;
-            BitmapFactory.Options bfo = new BitmapFactory.Options();
+            MediaMetadataRetriever mmr = null;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.GINGERBREAD_MR1) {
+                mmr = new MediaMetadataRetriever();
+                byte[] rawArt;
+                BitmapFactory.Options bfo = new BitmapFactory.Options();
 
-            mmr.setDataSource(mContext, music.get(position).getMusicResourceUri());
-            rawArt = mmr.getEmbeddedPicture();
+                mmr.setDataSource(mContext, music.get(position).getMusicResourceUri());
+                rawArt = mmr.getEmbeddedPicture();
 
-            if (null != rawArt) {
-                art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, bfo);
-                holder.imageView.setImageBitmap(art);
-            }else{
-                art = BitmapFactory.decodeResource(mContext.getResources(),R.drawable.mimage);
+                if (null != rawArt) {
+                    art = BitmapFactory.decodeByteArray(rawArt, 0, rawArt.length, bfo);
+                    holder.imageView.setImageBitmap(art);
+                } else {
+                    art = BitmapFactory.decodeResource(mContext.getResources(), R.drawable.mimage);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
         }
-        ////////////////////////////////////album art ///////////////////////////////////
+        ////////////////////////////////////album art  ending///////////////////////////////////
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,7 +80,9 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.MyView
                 try {
 
                     SharedPreferences sharedPreferences = mContext.getSharedPreferences(mContext.getPackageName(),Context.MODE_PRIVATE);
-                    sharedPreferences.edit().putInt("pos",position).apply();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+                        sharedPreferences.edit().putInt("pos",position).apply();
+                    }
                     status = 1;
                     setTimer(music.get(position).musicDuration,0);
 

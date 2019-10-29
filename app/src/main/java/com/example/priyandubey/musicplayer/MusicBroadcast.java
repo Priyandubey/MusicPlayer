@@ -8,7 +8,6 @@ import android.media.AudioManager;
 import android.net.Uri;
 import android.os.CountDownTimer;
 import android.util.Log;
-import android.widget.Toast;
 
 import static android.content.Context.MODE_PRIVATE;
 import static com.example.priyandubey.musicplayer.MainActivity.cast;
@@ -18,7 +17,6 @@ import static com.example.priyandubey.musicplayer.MainActivity.music;
 import static com.example.priyandubey.musicplayer.MainActivity.progressBar;
 import static com.example.priyandubey.musicplayer.MainActivity.textSongName;
 import static com.example.priyandubey.musicplayer.MainActivity.timerProg;
-import static com.example.priyandubey.musicplayer.MusicService.notification;
 
 public class MusicBroadcast extends BroadcastReceiver {
 
@@ -38,7 +36,7 @@ public class MusicBroadcast extends BroadcastReceiver {
             pos--;
             if(pos < 0) pos = music.size() - 1;
             status = 1;
-            Log.i("fromthebroadcastreciver"," " + music.get(pos).musicName);
+           // Log.i("fromthebroadcastreciver"," " + music.get(pos).musicName);
 
             try {
                 Uri myUri = music.get(pos).musicResourceUri;
